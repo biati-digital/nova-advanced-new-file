@@ -11,11 +11,13 @@ This is an extension will help you to create new files easily
 -  Automatically open the file(s) once they are created
 -  The extension will create all the required folders if they don't exist
 
-## First of all, Learn the difference between the two Modes
+## First of all, what's the difference between the two Modes?
+
+The reason to have two different modes is because there's people that are used to write the full path of the files to create and some other people prefers to be able to search, filter and select the folder where they want the new file to be created. Eaither way, both methods work great, choose your prefered mode in the extension preferences.
 
 ### Mode **"Folder Select"** 
 
-This mode will display a list of all the folders in your current workspace so you can easily seach the folder, select it and then you can enter the file(s) name. You can exclulde folders using the extension preferences and decide if the last folder you selected should be remembered and displaye first next time.
+This mode will display a list of all the folders in your current workspace so you can easily search the folder, select it and then you can enter the name of the file(s) you want to create. With the extension preferences you can exclulde folders and decide if the last folder you selected should be remembered and displaye first next time.
 
 &nbsp;
 &nbsp;
