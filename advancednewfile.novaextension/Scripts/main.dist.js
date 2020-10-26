@@ -157,6 +157,7 @@ const { log: log$1 } = helpers;
 const settings = config();
 const cache = new Map();
 
+/* Get Mode */
 function getMode() {
     return settings.mode == 'Folder select' ? 'selector' : 'input';
 }

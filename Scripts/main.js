@@ -4,6 +4,7 @@ const { log } = require('./helpers.js');
 const settings = extensionConfig();
 const cache = new Map();
 
+/* Get Mode */
 function getMode() {
     return settings.mode == 'Folder select' ? 'selector' : 'input';
 }
