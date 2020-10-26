@@ -133,8 +133,7 @@ async function createFile(path = '') {
                 // Make sure folders (if any) exists before creting the file
                 try {
                     nova.fs.mkdir(nova.path.join(folderPath));
-                } catch (error) {
-                }
+                } catch (error) {}
             }
             return folderPath;
         });
@@ -218,6 +217,16 @@ async function showDirsSelectorPallete() {
  */
 nova.commands.register(nova.extension.identifier + '.new', (editor) => {
     const mode = getMode();
+
+    // If no workspace path, notify and stop
+    if (!nova.workspace.path) {
+        let request = new NotificationRequest('advancednewfile-notification');
+        request.title = nova.localize('No Workspace found');
+        request.body = nova.localize('First you need to create a new project or open an existing one to create files');
+        request.actions = [nova.localize('OK')];
+        nova.notifications.add(request);
+        return false;
+    }
 
     if (mode == 'selector') {
         showDirsSelectorPallete();
