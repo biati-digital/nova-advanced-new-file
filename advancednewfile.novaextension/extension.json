@@ -1,0 +1,77 @@
+{
+  "identifier": "biati.advancednewfile",
+  "name": "Advanced New File",
+  "organization": "biati",
+  "description": "Create new files easily.",
+  "version": "1.0.0",
+  "repository": "https://github.com/biati-digital/nova-advanced-new-file",
+  "bugs": "https://github.com/biati-digital/nova-advanced-new-file/issues",
+  "funding": "https://www.paypal.com/paypalme/bdigital9816/0usd",
+  "categories": ["commands"],
+  "main": "main.dist.js",
+  "activationEvents": ["*"],
+  "entitlements": {
+    "filesystem": "readwrite"
+  },
+  "config": [
+    {
+      "key": "biati.advancednewfile.mode",
+      "title": "Mode",
+      "description": "Select the behavior of the popup-panel, With the \"Folder select\" mode the pop-up panel will display a list of all your folders, you can type to filter and select the folder where you want to create the new file(s) and after you select the folder you can enter the file(s) name, With the \"Write path\" a simple input panel will be displayed so you can enter the full path to the file for example (assets/css/newfile.css)",
+      "type": "enum",
+      "values": ["Folder select", "Write path"],
+      "default": "Folder select"
+    },
+    {
+      "key": "biati.advancednewfile.ignoreHiddens",
+      "title": "Ignore hidden folders",
+      "description": "Enable to ignore hidden folders in the folder selector",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "biati.advancednewfile.openafter",
+      "title": "Open file after created",
+      "description": "Enable to open the file automatically once it's created",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "biati.advancednewfile.openall",
+      "title": "Open All after created",
+      "description": "If you create multiple files with one command, only the first one will be opened (if Open file after created is enabled), you can enable this if you want to open all the files that were created",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "key": "biati.advancednewfile.cachelastfolder",
+      "title": "Cache last selected folder",
+      "description": "When using mode \"Folder select\" the last folder selected will be remembered and displayed as the first option",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "biati.advancednewfile.log",
+      "title": "Show logs",
+      "description": "Only for debug and in case the extenstion does not work correctly",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "key": "biati.advancednewfile.ignore",
+      "title": "Ignore folders",
+      "description": "Define folders to ignore (one per line), for example: entering includes, will ignore the includes folder and all it's subfolrders, entering includes/*  will only ignore the subfolders, the includes folder will not be ignored",
+      "type": "text",
+      "default": "node_modules\nvendor"
+    }
+  ],
+  "commands": {
+    "extensions": [
+      {
+        "title": "Advanced New file",
+        "command": "biati.advancednewfile.new",
+        "shortcut": "option-command-n"
+      }
+    ]
+  }
+}

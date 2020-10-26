@@ -1,0 +1,22 @@
+{
+  "name": "biati.advancednewfile",
+  "version": "1.0.0",
+  "description": "Advanced New File",
+  "main": "main.js",
+  "scripts": {
+    "build": "npx rollup -c",
+    "watch": "onchange -i \"src/**/*.js\" -- npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/biati-digital/nova-advanced-new-file.git"
+  },
+  "author": "biati",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/biati-digital/nova-advanced-new-file/issues"
+  },
+  "homepage": "https://github.com/biati-digital/nova-advanced-new-file",
+  "dependencies": {},
+  "devDependencies": {}
+}
