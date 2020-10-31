@@ -1,6 +1,6 @@
 # Advanced New File Nova extension
 
-This is an extension will help you to create new files easily
+This extension will help you to create new files easily and really fast
 
 ## Features
 
@@ -17,7 +17,7 @@ The reason to have two different modes is because there's people that are used t
 
 ### Mode **"Folder Select"** 
 
-This mode will display a list of all the folders in your current workspace so you can easily search the folder, select it and then you can enter the name of the file(s) you want to create. With the extension preferences you can exclulde folders and decide if the last folder you selected should be remembered and displaye first next time.
+This mode will display a list of all the folders in your current workspace so you can easily search the folder, select it and then you can enter the name of the file(s) you want to create. With the extension preferences you can exclulde folders and decide if the last folder you selected should be remembered and displayed first next time.
 
 &nbsp;
 &nbsp;
@@ -51,7 +51,7 @@ This mode will only display an input so you can write the path you want, for exa
 
 #### Creating multiple files with **"Folder Select"** mode
 
-When entering the file name you can provied several file names separated by comma, for example: **file1.css, file2,css, file3,css**
+When entering the file name you can provied several file names separated by comma, for example: **file1.css, file2.css, file3.css**
 
 &nbsp;
 &nbsp;
