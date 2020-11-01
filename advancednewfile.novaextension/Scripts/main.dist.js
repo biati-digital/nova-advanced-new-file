@@ -168,10 +168,10 @@ function getMode() {
  * we need to check if the path
  * is ignored
  */
-function isPathIgnored(path) {
+function isPathIgnored(path, fileName) {
     path = path.replace(/^\/|\/$/g, '');
 
-    if (settings.ignoreHiddens && path.startsWith('.')) {
+    if (settings.ignoreHiddens && fileName.startsWith('.')) {
         return true;
     }
 
@@ -184,10 +184,7 @@ function isPathIgnored(path) {
     ignored = ignored.split('\n');
     let isIgnored = false;
     for (let el of ignored) {
-        let matchIgnore = matcher.isMatch(path, el);
-        //log(`Should ignore ${path}, testing with ${el} and result is ${matchIgnore}`);
-
-        if (matchIgnore) {
+        if (fileName === el || matcher.isMatch(path, el)) {
             isIgnored = true;
             return isIgnored;
         }
@@ -202,9 +199,8 @@ function isPathIgnored(path) {
  * inside the curren workspace
  */
 function listWorkspaceFolders(path = '') {
-    let list = [];
-
-    try {
+    return new Promise((resolve) => {
+        let list = [];
         const filesInDir = nova.fs.listdir(path);
 
         filesInDir.forEach((file) => {
@@ -213,24 +209,25 @@ function listWorkspaceFolders(path = '') {
 
             if (stat.isDirectory()) {
                 let fileRelative = nova.path.join(path.replace(nova.workspace.path, ''), file);
+
                 if (!fileRelative.startsWith('/')) {
                     fileRelative = `/${fileRelative}`;
                 }
 
-                if (!isPathIgnored(fileRelative)) {
-                    let innerFolders = listWorkspaceFolders(filePath);
+                if (!isPathIgnored(fileRelative, file)) {
                     list.push(fileRelative);
-                    if (innerFolders.length) {
-                        list = list.concat(innerFolders);
-                    }
+
+                    listWorkspaceFolders(filePath).then((res) => {
+                        if (res.length) {
+                            list = list.concat(res);
+                        }
+                    });
                 }
             }
         });
-    } catch (error) {
-        console.error(error);
-    }
 
-    return list;
+        resolve(list);
+    });
 }
 
 /*
@@ -275,8 +272,7 @@ function processFileCreation(dir, file) {
  * Actually create the file
  */
 async function createFile(path = '') {
-    return new Promise((resolve, reject) => {
-        const relPath = nova.workspace.relativizePath(path);
+    return new Promise((resolve) => {
         const rootFolder = nova.workspace.path.split('/').pop();
         const folders = path.split('/').slice(0, -1);
 
@@ -301,7 +297,7 @@ async function createFile(path = '') {
  * Show input pallet
  * used to enter the file name or full path
  */
-async function showFileNameInputPallete(prependPath = '', message = '', placeholder = '') {
+function showFileNameInputPallete(prependPath = '', message = '', placeholder = '') {
     nova.workspace.showInputPalette(message, { placeholder: placeholder }, (val) => {
         if (!val) {
             return;
@@ -313,9 +309,10 @@ async function showFileNameInputPallete(prependPath = '', message = '', placehol
 /*
  * Show file path input pallet
  * used to enter the file full path
+ * when selected mode is write path
  */
-async function showFilePathInputPallete(message = '', placeholder = '') {
-    nova.workspace.showInputPalette(message, { placeholder: placeholder }, (val) => {
+function showFilePathInputPallete() {
+    nova.workspace.showInputPalette('', { placeholder: '' }, (val) => {
         if (!val) {
             return;
         }
@@ -341,34 +338,38 @@ async function showFilePathInputPallete(message = '', placeholder = '') {
  */
 async function showDirsSelectorPallete() {
     let initialPath = ['/'];
+    let dirsList = [];
+    let dirs = await listWorkspaceFolders(nova.workspace.path);
+
+    if (!settings.cachelastfolder) {
+        dirsList = initialPath.concat(dirs);
+    }
 
     if (settings.cachelastfolder) {
         const lastDir = cache.get(nova.workspace.path + '_dir');
         if (lastDir && lastDir !== '/') {
             initialPath = [lastDir, '/'];
         }
+        dirsList = [...new Set(initialPath.concat(dirs))];
     }
 
-    const index = await new Promise((resolve, reject) => {
-        const dirs = listWorkspaceFolders(nova.workspace.path);
-        nova.workspace.showChoicePalette(initialPath.concat(dirs), { placeholder: '' }, (dir, index) => {
-            if (!dir) {
-                resolve(dirs);
+    nova.workspace.showChoicePalette(dirsList, { placeholder: '' }, (dir) => {
+        if (!dir) {
+            return;
+        }
+        if (dir) {
+            if (settings.cachelastfolder) {
+                cache.set(nova.workspace.path + '_dir', dir);
             }
-            if (dir) {
-                if (settings.cachelastfolder) {
-                    cache.set(nova.workspace.path + '_dir', dir);
-                }
-                showFileNameInputPallete(dir, dir, 'File name');
-            }
-        });
+            showFileNameInputPallete(dir, dir, 'File name');
+        }
     });
 }
 
 /*
  * Register command
  */
-nova.commands.register(nova.extension.identifier + '.new', (editor) => {
+nova.commands.register(nova.extension.identifier + '.new', () => {
     const mode = getMode();
 
     // If no workspace path, notify and stop
@@ -386,7 +387,7 @@ nova.commands.register(nova.extension.identifier + '.new', (editor) => {
     }
 
     if (mode == 'input') {
-        showFilePathInputPallete('', '');
+        showFilePathInputPallete();
     }
 });
 
