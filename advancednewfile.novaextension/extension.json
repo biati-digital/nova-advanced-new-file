@@ -62,7 +62,7 @@
       "title": "Ignore folders",
       "description": "Define folders to ignore (one per line), for example: entering includes, will ignore the includes folder and all it's subfolrders, entering includes/*  will only ignore the subfolders, the includes folder will not be ignored",
       "type": "text",
-      "default": "node_modules\nvendor"
+      "default": "node_modules\nvendor\n.git\n.svn\nvscode\n.nova"
     }
   ],
   "commands": {

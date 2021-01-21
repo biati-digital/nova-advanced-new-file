@@ -226,6 +226,12 @@ function listWorkspaceFolders(path = '') {
             }
         });
 
+        list = list.sort((a, b) => {
+            // Provides line sorting with support for numbers, case sensitive (a ≠ b, a = á, a ≠ A)
+            // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/Collator/Collator
+            return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'case' });
+        });
+
         resolve(list);
     });
 }
@@ -259,9 +265,9 @@ function processFileCreation(dir, file) {
             // If multiple created and configured to open all
             if (created.length > 1 && settings.openafter && settings.openall) {
                 created.forEach((f) => nova.workspace.openFile(f)); //open all
-                nova.workspace.openFile(created[0]); // focus first file
+                nova.workspace.openFile(created[0], []); // focus first file
             } else if (created.length > 0 && settings.openafter) {
-                nova.workspace.openFile(created[0]);
+                nova.workspace.openFile(created[0], []);
             }
         }
     });
