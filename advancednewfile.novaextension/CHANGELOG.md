@@ -1,6 +1,6 @@
 ## Version 1.0.4
 
--   Improved: Folder list now uses a Process to execute `find` instead of relying on Nova, it's faster more reliable.
+-   Improved: Folder listing now uses a Process to execute `find` instead of relying on Nova, it's faster more reliable.
 
 ## Version 1.0.3
 
