@@ -47,39 +47,117 @@ function isPathIgnored(path, fileName) {
  */
 function listWorkspaceFolders(path = '') {
     return new Promise((resolve) => {
-        let list = [];
-        const filesInDir = nova.fs.listdir(path);
+        path = path.replace('/Volumes/Macintosh HD', '');
 
-        filesInDir.forEach((file) => {
-            const filePath = nova.path.join(path, file);
-            const stat = nova.fs.stat(filePath);
+        let foldersList = [];
+        let workspaceFolders = [];
+        const ignoredDefaultDirs = ['node_modules', '.git', '.svn', '.vscode', '.nova'];
+        const command = ['find', '-L', path.replace(/([ "'$`\\])/g, '\\$1'), '-type', 'd'];
 
-            if (stat.isDirectory()) {
-                let fileRelative = nova.path.join(path.replace(nova.workspace.path, ''), file);
+        log(`Wokspace path is ${path.replace(/([ "'$`\\])/g, '\\$1')}`);
 
-                if (!fileRelative.startsWith('/')) {
-                    fileRelative = `/${fileRelative}`;
+        let userIgnoreDirs = settings.ignore.trim();
+
+        if (userIgnoreDirs !== '') {
+            userIgnoreDirs = userIgnoreDirs.split('\n');
+        } else {
+            userIgnoreDirs = ignoredDefaultDirs;
+        }
+
+        log('Ignore directories is set to:');
+        log(userIgnoreDirs);
+
+        if (userIgnoreDirs.length) {
+            const totalIgnored = userIgnoreDirs.length;
+            command.push('(');
+            for (let i = 0; i < totalIgnored; i++) {
+                command.push('-name');
+                command.push(userIgnoreDirs[i]);
+
+                if (i < totalIgnored - 1) {
+                    command.push('-o');
+                }
+            }
+            command.push(')');
+            command.push('-prune');
+            command.push('-o');
+            command.push('-type');
+            command.push('d');
+        }
+
+        command.push('-print');
+
+        log('Generated command is');
+        log(command.join(' '));
+
+        const returnValue = {
+            status: 0,
+            stdout: [],
+            stderr: [],
+        };
+
+        const findProcess = new Process('/usr/bin/env', {
+            args: command,
+        });
+
+        findProcess.onStdout((l) => {
+            returnValue.stdout.push(l.trim());
+        });
+
+        findProcess.onStderr((l) => {
+            returnValue.stderr.push(l.trim());
+        });
+
+        findProcess.onDidExit((status) => {
+            returnValue.status = status;
+            log(`Find process status is ${status}`);
+
+            if (status === 0) {
+                //workspaceFolders = returnValue.stdout.join('\n');
+                workspaceFolders = returnValue.stdout;
+                for (let i = 0; i < workspaceFolders.length; i++) {
+                    let fileRelative = workspaceFolders[i].replace(path, '');
+                    let file = nova.path.basename(fileRelative);
+
+                    if (!file) {
+                        continue;
+                    }
+
+                    if (!fileRelative.startsWith('/')) {
+                        fileRelative = `/${fileRelative}`;
+                    }
+
+                    if (!isPathIgnored(fileRelative, file)) {
+                        foldersList.push(fileRelative);
+                    }
                 }
 
-                if (!isPathIgnored(fileRelative, file)) {
-                    list.push(fileRelative);
+                foldersList = foldersList.sort((a, b) => {
+                    return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'case' });
+                });
 
-                    listWorkspaceFolders(filePath).then((res) => {
-                        if (res.length) {
-                            list = list.concat(res);
-                        }
-                    });
-                }
+                log('All directories found in the workspce are: (Some exclusions might no be applied yet)');
+                log(workspaceFolders.join('\n'));
+                log('\n');
+                log('Final list of directories is (this list should not include excluded paths)');
+                log(foldersList.join('\n'));
+
+                resolve(foldersList);
+            } else {
+                log(`There was an error with status ${status}`, true);
+                log(returnValue.stderr, true);
+                reject(status);
             }
         });
 
-        list = list.sort((a, b) => {
-            // Provides line sorting with support for numbers, case sensitive (a ≠ b, a = á, a ≠ A)
-            // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/Collator/Collator
-            return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'case' });
-        });
-
-        resolve(list);
+        try {
+            log('Start find folders process');
+            findProcess.start();
+        } catch (e) {
+            returnValue.status = 128;
+            returnValue.stderr = [e.message];
+            reject(returnValue);
+        }
     });
 }
 
