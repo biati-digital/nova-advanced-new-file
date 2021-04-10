@@ -1,3 +1,7 @@
+## Version 1.0.4
+
+-   Improved: Folder list now uses a Process to execute `find` instead of relying on Nova, it's faster more reliable.
+
 ## Version 1.0.3
 
 -   Improved: Files/Folder order in folder select
