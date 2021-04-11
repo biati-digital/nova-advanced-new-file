@@ -3,6 +3,7 @@ const extensionConfig = require('./config.js');
 const { log } = require('./helpers.js');
 const settings = extensionConfig();
 const cache = new Map();
+let cachedFolders = [];
 
 /* Get Mode */
 function getMode() {
@@ -47,12 +48,12 @@ function isPathIgnored(path, fileName) {
  */
 function listWorkspaceFolders(path = '') {
     return new Promise((resolve) => {
-        path = path.replace('/Volumes/Macintosh HD', '');
-
         let foldersList = [];
         let workspaceFolders = [];
+
         const ignoredDefaultDirs = ['node_modules', '.git', '.svn', '.vscode', '.nova'];
-        const command = ['find', '-L', path.replace(/([ "'$`\\])/g, '\\$1'), '-type', 'd'];
+        //const command = ['find', '-L', path.replace(/([ "'$`\\])/g, '\\$1'), '-type', 'd'];
+        const command = ['find', '-L', path, '-type', 'd'];
 
         log(`Wokspace path is ${path.replace(/([ "'$`\\])/g, '\\$1')}`);
 
@@ -136,7 +137,7 @@ function listWorkspaceFolders(path = '') {
                     return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'case' });
                 });
 
-                log('All directories found in the workspce are: (Some exclusions might no be applied yet)');
+                log('All directories found in the workspace are: (Some exclusions might no be applied yet)');
                 log(workspaceFolders.join('\n'));
                 log('\n');
                 log('Final list of directories is (this list should not include excluded paths)');
@@ -270,7 +271,15 @@ function showFilePathInputPallete() {
 async function showDirsSelectorPallete() {
     let initialPath = ['/'];
     let dirsList = [];
-    let dirs = await listWorkspaceFolders(nova.workspace.path);
+    let dirs = [];
+
+    if (cachedFolders.length) {
+        log('Loading folders list from cache');
+        dirs = cachedFolders;
+    } else {
+        log('Generating folders list on the fly');
+        dirs = await listWorkspaceFolders(nova.workspace.path);
+    }
 
     if (!settings.cachelastfolder) {
         dirsList = initialPath.concat(dirs);
@@ -322,7 +331,44 @@ nova.commands.register(nova.extension.identifier + '.new', () => {
     }
 });
 
-exports.activate = () => {};
+exports.activate = () => {
+    const mode = getMode();
+
+    if (nova.workspace.path && mode == 'selector') {
+        listWorkspaceFolders(nova.workspace.path).then((folders) => {
+            cachedFolders = folders;
+        });
+
+        nova.fs.watch(nova.workspace.path + '/*', (changed) => {
+            let extension = nova.path.extname(changed);
+            let isDir = false;
+
+            try {
+                isDir = nova.fs.stat(changed).isDirectory();
+            } catch (error) {
+                // File probably was deleted, check it's name
+                if (!extension) {
+                    isDir = true;
+                }
+            }
+            if (isDir) {
+                log(`Workspace changed: ${changed}`);
+                log('Reloading Folders List');
+                listWorkspaceFolders(nova.workspace.path).then((folders) => {
+                    cachedFolders = folders;
+                });
+            }
+        });
+
+        nova.workspace.onDidChangePath((path) => {
+            log(`Workspace Path changed: ${changed}`);
+            log('Reloading Folders List');
+            listWorkspaceFolders(path).then((folders) => {
+                cachedFolders = folders;
+            });
+        });
+    }
+};
 
 exports.deactivate = () => {
     if (cache.has(nova.workspace.path + '_dir')) {
