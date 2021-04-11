@@ -1,3 +1,7 @@
+## Version 1.1.0
+
+-   New: Folder listing now caches the folders list and watches the workspace for changes to update the list, this improves the speed of the folder selector.
+
 ## Version 1.0.4
 
 -   Improved: Folder listing now uses a Process to execute `find` instead of relying on Nova, it's faster more reliable.
