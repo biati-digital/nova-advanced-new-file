@@ -8,6 +8,7 @@ This extension will help you to create new files easily and really fast
 -  Assign any keyboard shortcode or call the command directly (default is option-command-n)
 -  Two modes of use, **folder select** or **write path** (more in the desc)
 -  Create one or multiple files in the same command
+-  Create one or multiple folders
 -  Automatically open the file(s) once they are created
 -  The extension will create all the required folders if they don't exist
 
@@ -15,9 +16,11 @@ This extension will help you to create new files easily and really fast
 
 The reason to have two different modes is because there's people that are used to write the full path of the files to create and some other people prefers to be able to search, filter and select the folder where they want the new file to be created. Eaither way, both methods work great, choose your prefered mode in the extension preferences.
 
-### Mode **"Folder Select"** 
+### Mode **"Folder Select"**
 
 This mode will display a list of all the folders in your current workspace so you can easily search the folder, select it and then you can enter the name of the file(s) you want to create. With the extension preferences you can exclulde folders and decide if the last folder you selected should be remembered and displayed first next time.
+
+**You can also create folders, when entering the file name if it ends with `/` it will create it as a folder, for example: if you enter `src/css/` it will create the src folder and inside a css folder.**
 
 &nbsp;
 &nbsp;
@@ -31,9 +34,11 @@ This mode will display a list of all the folders in your current workspace so yo
 &nbsp;
 &nbsp;
 
-### Mode **"Write Path"** 
+### Mode **"Write Path"**
 
 This mode will only display an input so you can write the path you want, for example "css/style.css"
+
+**You can also create folders, if the path you enter ends with `/` it will create it as a folder, for example: if you enter `src/css/` it will create the src folder and inside a css folder.**
 
 &nbsp;
 &nbsp;
