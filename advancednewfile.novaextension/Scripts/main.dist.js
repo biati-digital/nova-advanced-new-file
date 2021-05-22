@@ -205,10 +205,10 @@ function listWorkspaceFolders(path = '') {
         let workspaceFolders = [];
 
         const ignoredDefaultDirs = ['node_modules', '.git', '.svn', '.vscode', '.nova'];
-        //const command = ['find', '-L', path.replace(/([ "'$`\\])/g, '\\$1'), '-type', 'd'];
         const command = ['find', '-L', path, '-type', 'd'];
 
-        log$1(`Wokspace path is ${path.replace(/([ "'$`\\])/g, '\\$1')}`);
+        //log(`Wokspace path is ${path.replace(/([ "'$`\\])/g, '\\$1')}`);
+        log$1(`Wokspace path is ${path}`);
 
         let userIgnoreDirs = settings.ignore.trim();
 
@@ -331,6 +331,14 @@ function processFileCreation(dir, file) {
 
     file.forEach(async (f, i) => {
         const filePath = nova.path.join(nova.workspace.path, dir, f.trim());
+
+        // If this is a folder
+        if (f.endsWith('/')) {
+            log$1(`creatin folder ${filePath}`);
+            await makeSurePathExists(filePath);
+            return;
+        }
+
         const create = await createFile(filePath);
 
         if (create) {
@@ -357,9 +365,22 @@ function processFileCreation(dir, file) {
  * Actually create the file
  */
 async function createFile(path = '') {
+    await makeSurePathExists(path.split('/').slice(0, -1).join('/'));
+
+    return new Promise((resolve) => {
+        const file = nova.fs.open(path, 'x');
+        file.close();
+        resolve(true);
+    });
+}
+
+/**
+ * Make sure path exists
+ */
+async function makeSurePathExists(path = '') {
     return new Promise((resolve) => {
         const rootFolder = nova.workspace.path.split('/').pop();
-        const folders = path.split('/').slice(0, -1);
+        const folders = path.split('/');
 
         folders.reduce((acc, folder) => {
             const folderPath = nova.path.join(acc, folder);
@@ -372,8 +393,6 @@ async function createFile(path = '') {
             return folderPath;
         });
 
-        const file = nova.fs.open(path, 'x');
-        file.close();
         resolve(true);
     });
 }
@@ -492,20 +511,41 @@ var activate = () => {
             cachedFolders = folders;
         });
 
+        const watcherIgnore = ['node_modules', 'vendor', 'logs', '.next', '.git', '.svn'];
+
         nova.fs.watch(nova.workspace.path + '/*', (changed) => {
             let extension = nova.path.extname(changed);
             let isDir = false;
+            let reIndex = false;
 
             try {
                 isDir = nova.fs.stat(changed).isDirectory();
+                reIndex = true;
             } catch (error) {
                 // File probably was deleted, check it's name
                 if (!extension) {
                     isDir = true;
+                    reIndex = true;
                 }
             }
             if (isDir) {
                 log$1(`Workspace changed: ${changed}`);
+
+                watcherIgnore.forEach((ignore) => {
+                    if (changed.includes(ignore)) {
+                        reIndex = false;
+                    }
+                });
+
+                if (isPathIgnored(changed, '') || changed.includes('untitled folder')) {
+                    reIndex = false;
+                }
+
+                if (!reIndex) {
+                    log$1('Do not reindex as changed path is ignored');
+                    return;
+                }
+
                 log$1('Reloading Folders List');
                 listWorkspaceFolders(nova.workspace.path).then((folders) => {
                     cachedFolders = folders;
