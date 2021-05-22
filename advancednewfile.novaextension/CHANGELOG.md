@@ -1,3 +1,13 @@
+## Version 2.0.0
+
+-   New: Now you can also create folders by ending with `/` for example: `mydir/`
+
+
+## Version 1.2.0
+
+-   New: Added .next folder to ignored path for Next JS.
+-   New: Do not reindex folders when there's changes in ignored paths.
+
 ## Version 1.1.0
 
 -   New: Folder listing now caches the folders list and watches the workspace for changes to update the list, this improves the speed of the folder selector.
