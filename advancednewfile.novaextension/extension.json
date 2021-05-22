@@ -3,7 +3,7 @@
   "name": "Advanced New File",
   "organization": "biati",
   "description": "Create new files easily and fast.",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "repository": "https://github.com/biati-digital/nova-advanced-new-file",
   "bugs": "https://github.com/biati-digital/nova-advanced-new-file/issues",
   "funding": "https://www.paypal.com/paypalme/bdigital9816/0usd",
@@ -63,7 +63,7 @@
       "title": "Ignore folders",
       "description": "Define folders to ignore (one per line), for example: entering includes, will ignore the includes folder and all it's subfolrders, entering includes/*  will only ignore the subfolders, the includes folder will not be ignored",
       "type": "text",
-      "default": "node_modules\nvendor\n.git\n.svn\n.vscode\n.nova"
+      "default": "node_modules\nvendor\n.git\n.svn\n.vscode\n.nova\n.next"
     }
   ],
   "commands": {
