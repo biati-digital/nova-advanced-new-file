@@ -1,3 +1,8 @@
+
+## Version 2.0.1
+
+-   Updated: New icon
+
 ## Version 2.0.0
 
 -   New: Now you can also create folders by ending with `/` for example: `mydir/`
