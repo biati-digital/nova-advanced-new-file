@@ -1,4 +1,7 @@
-# Advanced New File Nova extension
+<p align="center">
+<img src="https://i.ibb.co/tZDyYVc/extension.png" width="80" height="80">
+</p>
+<h1 align="center">Advanced New File Nova extension</h1>
 
 This extension will help you to create new files easily and really fast
 
